@@ -4,14 +4,20 @@ new Vue({
   el: '#app',
   data: {
     total: 0,
-    items: [
-      { id: 1, title: 'item 1' },
-      { id: 2, title: 'item 2' },
-      { id: 3, title: 'item 3' },
-    ],
+    items: [],
     cart: [],
+    search: '',
+    lastSearch: '',
   },
   methods: {
+    onSubmit(){
+      this.$http.get('/search/'.concat(this.search))
+        .then(function(res) {
+          console.log(res.data)
+          this.lastSearch = this.search;
+          this.items = res.data
+      });
+    },
     addItem (index) {
       this.total += PRICE;
       let item = this.items[index];
@@ -20,6 +26,7 @@ new Vue({
         if (this.cart[i].id === item.id) {
           found = true;
           this.cart[i].qty++;
+          break;
         }
       }
       if (!found) {
@@ -36,25 +43,17 @@ new Vue({
       this.total += PRICE;
     },
     dec (item) {
-        item.qty--;
-        this.total -= PRICE;
+      item.qty--;
+      this.total -= PRICE;
       if (item.qty <= 0) {
         for (let i = 0; i < this.cart.length; i++) {
           if (this.cart[i].id === item.id) {
-            this.cart.splice(i,1);
+            this.cart.splice(i, 1);
             break;
           }
         }
 
       }
-
-
-      this.cart.pop({
-        id: item.id,
-        title: item.title,
-        qty: 1,
-        price: PRICE,
-      })
     },
 
   },
